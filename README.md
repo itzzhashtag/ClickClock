@@ -1,15 +1,24 @@
-# ⏰ Click Clock — ESP32 Stepper Digit Clock
+<div align="center">
+ 
+# ⏰ Click Clock — The Kinetic Clock
 
-> ⚙️ A fully mechanical **HH:MM clock** powered by **ESP32 + Stepper Motors + WiFi (NTP)**
-> 🌐 Self-syncing, visually satisfying, and engineered for precision
+**by [Aniket Chowdhury](mailto:micro.aniket@gmail.com) (aka `#Hashtag`)**
+
+<img src="https://img.shields.io/badge/Status-Working-brightgreen?style=for-the-badge&logo=arduino" alt="Status Badge" />
+<img src="https://img.shields.io/badge/Built%20with-Arduino-blue?style=for-the-badge&logo=arduino" alt="Arduino Badge" />
+<img src="https://img.shields.io/badge/License-Personal--Use-orange?style=for-the-badge" alt="License Badge" />
+
+</div>
+
 
 ---
 
-## 🎬 Demo Preview
+## 🎬 Project Overview
 
-✨ Mechanical digits move every minute
-🌈 Status LEDs indicate system state
-🌐 Time synced automatically via internet
+
+* 🌈 Status LEDs indicate system state
+* 🌐 Time Self-syncing automatically via internet, visually satisfying, and engineered for precision
+* ⚙️ A fully mechanical **HH:MM clock** powered by **ESP32 + Stepper Motors + WiFi (NTP)**
 
 ---
 
@@ -196,17 +205,40 @@ STEPS_PER_DIGIT = 560;
 * 🔋 Battery backup
 
 ---
+ 
+## 👤 Author & Contact
 
-## 👨‍🔧 Built By
+👨 **Name:** Aniket Chowdhury (aka Hashtag)  
+📧 **Email:** [micro.aniket@gmail.com](mailto:micro.aniket@gmail.com)  
+💼 **LinkedIn:** [itzz-hashtag](https://www.linkedin.com/in/itzz-hashtag/)  
+🐙 **GitHub:** [itzzhashtag](https://github.com/itzzhashtag)  
+📸 **Instagram:** [@itzz_hashtag](https://instagram.com/itzz_hashtag)
 
-**Aniket Chowdhury**
-⚙️ Automatic Engineer × Artist
+---
+
+## 📜 License
+
+This project is released under a Modified MIT License.
+It is intended for personal and non-commercial use only.
+
+🚫 Commercial use or distribution for profit is not permitted without prior written permission.
+🤝 For collaboration, reuse, or licensing inquiries, please contact the author.
+
+📄 View Full License <br>
+[![License: MIT–NC](https://img.shields.io/badge/license-MIT--NC-blue.svg)](./LICENSE)
 
 ---
 
 ## ⭐ If you like this project
 
 Give it a ⭐ on GitHub — it helps a lot!
+
+---
+
+## ❤️ Acknowledgements
+
+This is a solo passion project, built with countless nights of tinkering, testing, and debugging.  
+If you find it useful or inspiring, feel free to ⭐ the repository or connect with me on social media!
 
 ---
 
