@@ -152,7 +152,7 @@ static const int STEPS_PER_DIGIT = 560;
 
 ## 📸 Demo / Showcase
 
-> *(Add your images / videos here — highly recommended)*
+> *(Images / videos here — soon)*
 
 ---
 
