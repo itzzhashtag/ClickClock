@@ -1,208 +1,157 @@
 <div align="center">
- 
+
 # ⏰ Click Clock — The Kinetic Clock
 
 **by [Aniket Chowdhury](mailto:micro.aniket@gmail.com) (aka `#Hashtag`)**
 
-<img src="https://img.shields.io/badge/Status-Working-brightgreen?style=for-the-badge&logo=arduino" alt="Status Badge" />
-<img src="https://img.shields.io/badge/Built%20with-Arduino-blue?style=for-the-badge&logo=arduino" alt="Arduino Badge" />
-<img src="https://img.shields.io/badge/License-Personal--Use-orange?style=for-the-badge" alt="License Badge" />
+<img src="https://img.shields.io/badge/Status-Working-brightgreen?style=for-the-badge&logo=arduino" />
+<img src="https://img.shields.io/badge/Built%20with-ESP32-blue?style=for-the-badge&logo=arduino" />
+<img src="https://img.shields.io/badge/Type-Mechanical%20Clock-black?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Control-WiFi%20%7C%20NTP-purple?style=for-the-badge" />
 
 </div>
-
 
 ---
 
 ## 🎬 Project Overview
 
+Click Clock is a **kinetic mechanical clock** that physically moves time into place using stepper motors.
 
-* 🌈 Status LEDs indicate system state
-* 🌐 Time Self-syncing automatically via internet, visually satisfying, and engineered for precision
-* ⚙️ A fully mechanical **HH:MM clock** powered by **ESP32 + Stepper Motors + WiFi (NTP)**
-
----
-
-## 🧠 What This Project Does
-
-This project is a **4-digit mechanical clock** that displays time in:
-
-```
-HH : MM  (24-hour format)
-```
-
-Each digit is driven by a **28BYJ-48 stepper motor**, creating a satisfying **click-based mechanical movement**.
+Instead of pixels, this clock uses **real motion** — each digit shifts into position with a satisfying mechanical click, making time something you can *see and feel*.
 
 ---
 
-## ⚙️ Features
+## ✨ Highlights
 
-* ⏱ **Real-time clock using NTP (Internet time)**
-* 🌐 **WiFi auto-connect with retry logic**
-* 🔁 **Auto-resync every ~1 minute**
-* ⚡ **Works offline after first sync**
-* 🎨 **RGB LED status indicators**
-* 🔧 **Startup self-test animation**
-* 🧠 **State-based error handling (WiFi vs NTP)**
-
----
-
-## 🧩 Hardware Required
-
-| Component                                | Quantity |
-| ---------------------------------------- | -------- |
-| ESP32                                    | 1        |
-| 28BYJ-48 Stepper Motor (12V recommended) | 4        |
-| ULN2003 Driver Board                     | 4        |
-| WS2812 / NeoPixel LEDs                   | 4        |
-| 12V Power Supply                         | 1        |
-| Buck Converter (12V → 5V for ESP)        | 1        |
-| Wires + Frame/3D Printed Parts           | —        |
+* ⚙️ Fully mechanical **HH:MM display**
+* 🌐 **WiFi + NTP auto time sync**
+* 🧠 Runs on **ESP32 internal RTC (offline capable)**
+* 🎨 **NeoPixel status LEDs**
+* 🔁 Smart recovery from WiFi / NTP failures
+* 🎬 Startup animation (full motion sweep)
+* 🔧 Drift correction for mechanical accuracy
 
 ---
 
-## 🔌 Wiring Overview
+## ⚙️ How It Works
 
-### 🧠 Motors → ESP32 (via ULN2003)
-
-| Digit | GPIO Pins      |
-| ----- | -------------- |
-| H1    |      Given     |
-| H2    |      Given     |
-| M1    |      Given     |
-| M2    |      Given     |
-
----
-
-### 💡 LED Strip
-
-| Component   | GPIO   |
-| ----------- | ------ |
-| WS2812 Data | GPIO 4 |
-
----
-
-⚠️ **Important:**
-
-* Use **external 12V supply for motors**
-* Common GND between ESP32 & drivers
-* DO NOT power motors from ESP32
-
----
-
-## 🌐 Working Principle
-
-### 1️⃣ First Boot Logic
-
-* 🔄 Keeps searching for **WiFi** until connected
-* 🔄 Keeps syncing **NTP time** until success
-* ✅ Only then starts clock
-
----
-
-### 2️⃣ Normal Operation
-
-* 🕒 Time stored in ESP32 internal RTC
-* 🔁 Periodic NTP resync
-* ❌ If WiFi lost → continues running (no freeze)
-
----
-
-### 3️⃣ Motor Control
-
-Each digit moves based on:
-
-```
-Digit → Steps → Motor Rotation
-```
-
-* 1 digit ≈ 560 steps
-* Full rotation ≈ 2038 steps
-
----
-
-### 4️⃣ LED Status System
-
-| Mode           | Meaning                 |
-| -------------- | ----------------------- |
-| ⚪ White        | Normal                  |
-| 🔴 Red         | WiFi error              |
-| 🟡 Yellow      | NTP error               |
-| 🟠 Orange      | Sync failed but running |
-| 🟣 Purple      | Booting                 |
-| 🔵 Cyan        | Reserved                |
-| 🌈 Multi-color | Startup animation       |
-
----
-
-## 🎬 Startup Sequence
-
-1. 🟣 Boot LED
-2. 🌐 WiFi connect
-3. ⏱ NTP sync
-4. 🎨 Motor animation:
-
-   * Move to max
-   * Return to zero
-5. ⚪ Ready
-
----
-
-## 🧠 Software Architecture
-
-```
-setup()
- ├── wifi_connect()
- ├── syncTimeNTP()
- ├── startup()
-
-loop()
- ├── timeSet()
- ├── motorWork()
+```text
+Internet Time (NTP)
+        ↓
+     ESP32 WiFi
+        ↓
+ Internal RTC (keeps time offline)
+        ↓
+   Time Processing (HH:MM)
+        ↓
+ Stepper Motor Control
+        ↓
+ Mechanical Digit Movement
 ```
 
 ---
 
-## 🔄 Time Flow
+## 🧠 Core Concept
 
-```
-NTP → ESP32 RTC → Digit Split → Stepper Motors
-```
+> Time is not displayed — it is *constructed*.
+
+Each minute:
+
+* Digits are calculated
+* Motors rotate to exact positions
+* Physical numbers align into current time
 
 ---
 
-## ⚡ Performance Notes
+## 🔧 Hardware
 
-* Motors update **once per minute** (low wear)
-* System runs even without internet after sync
-* Blocking logic used intentionally for reliability at boot
+* ESP32
+* 28BYJ-48 Stepper Motors (×4)
+* ULN2003 Driver Boards (×4)
+* WS2812 / NeoPixel LEDs
+* External 5V Power Supply (2A–3A recommended)
+* Capacitors for stability
+
+---
+
+## 🔌 Wiring & Power
+
+📄 See full guide: **`Wiring.md`**
+
+Includes:
+
+* Safe power design ⚡
+* Capacitors & protection 🔋
+* Motor wiring ⚙️
+* LED safety 💡
+
+---
+
+## 🎨 LED Status System
+
+| State       | Meaning           |
+| ----------- | ----------------- |
+| ⚪ White     | Normal operation  |
+| 🔴 Red      | WiFi error        |
+| 🔥 Soft Red | Running offline   |
+| 🟠 Orange   | NTP failed        |
+| 🟡 Yellow   | NTP retry         |
+| 🟣 Purple   | Booting           |
+| 🌈 Mixed    | Startup animation |
+
+---
+
+## 🎬 Boot Behavior
+
+* 🟣 System boot indicator
+* 🔧 Mechanical drift correction
+* 🌐 WiFi connection attempt
+* ⏱ Time sync (NTP)
+* ⚙️ Full motor sweep (test)
+* 🕒 Clock starts
+
+---
+
+## ⏱ Runtime Behavior
+
+* Updates **once per minute**
+* Motors move **only when needed**
+* Keeps time even without internet
+* Automatically resyncs when possible
 
 ---
 
 ## 🛠 Calibration
 
 ```cpp
-STEPS_PER_DIGIT = 560; //Edit if Required
+static const int STEPS_PER_DIGIT = 560;
 ```
 
-👉 Adjust this value based on your gear ratio / build
+Adjust based on your mechanical build.
 
 ---
 
-## 💀 Known Limitations
+## ⚠️ Important Notes
 
-* Uses blocking stepper control (sequential movement)
-* Requires stable power supply for motors
-* No manual time fallback (yet)
+* ❗ Do NOT power motors from ESP32
+* 🔗 Common ground is mandatory
+* ⚡ Use capacitors to prevent resets
+* ⚙️ Stepper control is sequential (blocking)
 
 ---
 
-## 🚀 Future Improvements
+## 📸 Showcase
 
-* 🔄 Non-blocking motor control (AccelStepper)
-* 📱 Web interface for control
-* 🧭 Auto-calibration using sensors
-* 🌈 Smooth LED animations
-* 🔋 Battery backup
+>  images / videos here Soon
+
+---
+
+## 🚀 Future Ideas
+
+* Parallel motor control (FreeRTOS)
+* Web dashboard control
+* Smart brightness / night mode
+* Sound or haptic feedback
 
 ---
  
@@ -229,9 +178,13 @@ It is intended for personal and non-commercial use only.
 
 ---
 
-## ⭐ If you like this project
+## ⭐ Support
 
-Give it a ⭐ on GitHub — it helps a lot!
+If you like this project:
+
+* ⭐ Star the repo
+* 🍴 Fork it
+* 🛠 Build your own version
 
 ---
 
@@ -246,3 +199,5 @@ If you find it useful or inspiring, feel free to ⭐ the repository or connect w
 
 > This isn’t just a clock.
 > It’s a **mechanical visualization of time itself.**
+
+</div>
