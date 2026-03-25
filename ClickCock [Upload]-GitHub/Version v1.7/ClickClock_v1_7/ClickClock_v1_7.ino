@@ -23,12 +23,12 @@
 // ============================================================
 // ----- WiFi Config -----
 // ============================================================
-const char* ssid     = "#@5H-2G~M0d^l-4o4";   // WiFi network name
-const char* password = "Ac~$12@2^^2@@2$~aC";   // WiFi password
+const char* ssid = "your_ssid";           // Wifi SSID
+const char* password = "ssid_password";   // Wifi Passcode
 
 // Static IP config (optional — comment out if using DHCP)
-IPAddress local_IP(192, 168, 0, 180);   // ESP32 static IP
-IPAddress gateway(192, 168, 0, 1);      // Router IP
+IPAddress local_IP("Your_ESP32_IP");       // Static IP for ESP1 Set something nearby your IP
+IPAddress gateway("Your_static_Ip");      // Routers IP - Wifi
 IPAddress subnet(255, 255, 255, 0);     // Subnet mask
 IPAddress primaryDNS(8, 8, 8, 8);       // Google primary DNS
 IPAddress secondaryDNS(8, 8, 4, 4);     // Google secondary DNS
