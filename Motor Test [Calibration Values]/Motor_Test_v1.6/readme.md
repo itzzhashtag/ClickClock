@@ -1,6 +1,7 @@
 ==================== ESP32 + 4x 28BYJ-48 + ULN2003 WIRING ====================
 
 -------------------- 🔋 POWER --------------------
+
 External 5V Supply (+)  →  VCC of ALL ULN2003 boards  
 External 5V Supply (GND)→  GND of ALL ULN2003 boards  
 
@@ -11,6 +12,7 @@ ESP32 GND               →  SAME GND (COMMON GROUND)
 ---
 
 -------------------- ⚙️ MOTOR 1 (HOUR TENS - H1) --------------------
+
 ULN2003 IN1 → ESP32 GPIO 33  
 ULN2003 IN2 → ESP32 GPIO 32  
 ULN2003 IN3 → ESP32 GPIO 13  
@@ -21,6 +23,7 @@ Motor plugs directly into ULN2003 board
 ---
 
 -------------------- ⚙️ MOTOR 2 (HOUR UNITS - H2) --------------------
+
 ULN2003 IN1 → ESP32 GPIO 14  
 ULN2003 IN2 → ESP32 GPIO 27  
 ULN2003 IN3 → ESP32 GPIO 26  
@@ -31,6 +34,7 @@ Motor plugs directly into ULN2003 board
 ---
 
 -------------------- ⚙️ MOTOR 3 (MINUTE TENS - M1) --------------------
+
 ULN2003 IN1 → ESP32 GPIO 23  
 ULN2003 IN2 → ESP32 GPIO 22  
 ULN2003 IN3 → ESP32 GPIO 21  
@@ -41,6 +45,7 @@ Motor plugs directly into ULN2003 board
 ---
 
 -------------------- ⚙️ MOTOR 4 (MINUTE UNITS - M2) --------------------
+
 ULN2003 IN1 → ESP32 GPIO 18  
 ULN2003 IN2 → ESP32 GPIO 5  
 ULN2003 IN3 → ESP32 GPIO 17  
