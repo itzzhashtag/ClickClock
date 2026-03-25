@@ -66,10 +66,10 @@ Each digit is driven by a **28BYJ-48 stepper motor**, creating a satisfying **cl
 
 | Digit | GPIO Pins      |
 | ----- | -------------- |
-| H1    | 16, 17, 5, 18  |
-| H2    | 19, 21, 22, 23 |
-| M1    | 25, 26, 27, 14 |
-| M2    | 12, 13, 32, 33 |
+| H1    |      Given     |
+| H2    |      Given     |
+| M1    |      Given     |
+| M2    |      Given     |
 
 ---
 
@@ -181,7 +181,7 @@ NTP → ESP32 RTC → Digit Split → Stepper Motors
 ## 🛠 Calibration
 
 ```cpp
-STEPS_PER_DIGIT = 560;
+STEPS_PER_DIGIT = 560; //Edit if Required
 ```
 
 👉 Adjust this value based on your gear ratio / build
