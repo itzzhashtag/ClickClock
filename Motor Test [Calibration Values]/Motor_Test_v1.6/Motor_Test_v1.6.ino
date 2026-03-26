@@ -1,10 +1,42 @@
+// ============================================================
+//  _   _    _    ____  _   _ _____   _     ____ 
+// | | | |  / \  / ___|| | | |_   _| / \   / ___|
+// | |_| | / _ \ \___ \| |_| | | |  / _ \ | |  _ 
+// |  _  |/ ___ \ ___) |  _  | | | / ___ \| |_| |
+// |_| |_/_/   \_\____/|_| |_| |_|/_/   \_\\____|
+//
+//  Click Clock — Interactive Motor Test
+//  Serial Monitor → type commands → motors move live
+// ============================================================
+
+/*
+how to calibrate and transfer the value:
+
+Step 1 — find the right number in MotorTest_Interactive
+Flash the interactive test, then for each motor:
+Type g 1 — motor should land exactly on digit 1,
+If it overshoots → type s 540 (lower value), h to home, g 1 again,
+If it undershoots → type s 580 (higher value), h to home, g 1 again,
+Repeat until it lands perfectly
+Type i to see the final spd value.
+
+Step 2 — copy that one value into ClickClock
+In your main clock, find this line:
+//cppstatic const int STEPS_PER_DIGIT = 560;  // ← CALIBRATE THIS
+Replace 560 with whatever number you found. 
+Since the main clock uses one shared value for all motors, 
+use the average, or the most important motor 
+(M2 — minute units — changes most often).
+*/
+
+
 
 #include <Stepper.h>
 
 // ============================================================
 // ----- ClockDigit Class -----
 // ============================================================
-class ClockDigit
+ class ClockDigit
 {
   int8_t  current_digit    = 0;
   int8_t  invert_direction = 1;
