@@ -31,6 +31,7 @@ IPAddress gateway("Your_static_Ip");      // Routers IP - Wifi
 IPAddress subnet(255, 255, 255, 0);     // Subnet mask
 IPAddress primaryDNS(8, 8, 8, 8);       // Google primary DNS
 IPAddress secondaryDNS(8, 8, 4, 4);     // Google secondary DNS
+IPAddress secondaryDNS(8, 8, 4, 4);     // Google secondary DNS
 
 
 // ============================================================
@@ -73,50 +74,68 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(ledCount, LED_Port, NEO_GRB + NEO_KH
 // ============================================================
 class ClockDigit
 {
-  int8_t current_digit    = 0;  // Tracks where motor currently is (0–max)
-  int8_t invert_direction = 1;  // +1 = normal, -1 = reversed wiring
+  int8_t current_digit    = 0;
+  int8_t invert_direction = 1;
+  int    STEPS_PER_DIGIT;
 
-  static const int STEPS_PER_REVOLUTION = 2038;  // 28BYJ-48 full revolution
-  static const int STEPS_PER_DIGIT      = 560;   // Steps between digits — CALIBRATE THIS
+  int pins[4];
+  int stepIndex = 0;
 
-  Stepper stepper;  // Arduino Stepper instance
+  const int halfStep[8][4] = {
+    {1,0,0,0}, {1,1,0,0},
+    {0,1,0,0}, {0,1,1,0},
+    {0,0,1,0}, {0,0,1,1},
+    {0,0,0,1}, {1,0,0,1}
+  };
 
-public:
-  // Constructor — set direction, wiring pins, and speed
-  // blu/yel/pnk/ora = ULN2003 IN1 IN2 IN3 IN4 pins
-  ClockDigit(int8_t dir, int blu, int yel, int pnk, int ora)
-    : invert_direction(dir),
-      stepper(STEPS_PER_REVOLUTION, blu, yel, pnk, ora)
+  void _step(int dir)
   {
-    stepper.setSpeed(10);  // RPM — lower = smoother, higher = faster
+    stepIndex = (stepIndex + (dir > 0 ? 1 : 7)) % 8;
+    for (int i = 0; i < 4; i++)
+      digitalWrite(pins[i], halfStep[stepIndex][i]);
+    delayMicroseconds(1200);
   }
 
-  // Move to an absolute digit position (0 = bottom, max = top)
-  // Positive delta → motor goes UP, Negative delta → motor goes DOWN
-  void set_to_digit(uint8_t digit)
+  void _move(int steps)
   {
-    int delta = digit - current_digit;  // How many digits to move
-    if (delta != 0)
-    {
-      // invert_direction * delta gives correct physical direction
-      stepper.step(invert_direction * STEPS_PER_DIGIT * delta);
-      current_digit = digit;  // Update tracked position
+    int dir   = (steps > 0) ? invert_direction : -invert_direction;
+    int count = abs(steps);
+    for (int i = 0; i < count; i++) _step(dir);
+    // release coils after move
+    for (int i = 0; i < 4; i++) digitalWrite(pins[i], LOW);
+  }
+
+public:
+  ClockDigit(int8_t dir, int spd, int p1, int p2, int p3, int p4)
+    : invert_direction(dir), STEPS_PER_DIGIT(spd)
+  {
+    pins[0]=p1; pins[1]=p2; pins[2]=p3; pins[3]=p4;
+    for (int i = 0; i < 4; i++) {
+      pinMode(pins[i], OUTPUT);
+      digitalWrite(pins[i], LOW);
     }
   }
 
-  // Force motor back to position 0 (home / bottom)
-  // Always moves DOWN by however many digits we are above 0
+  void set_to_digit(uint8_t digit)
+  {
+    int delta = digit - current_digit;
+    if (delta != 0) {
+      _move(STEPS_PER_DIGIT * delta);
+      current_digit = digit;
+    }
+  }
+
   void force_zero()
   {
-    stepper.step(invert_direction * STEPS_PER_DIGIT * (-current_digit));
+    _move(STEPS_PER_DIGIT * (-current_digit));
     current_digit = 0;
   }
+
   void boot_correct(int steps)
   {
-    stepper.step(steps);
+    _move(steps);
   }
 };
-
 
 // ============================================================
 // ----- Motor Objects -----
@@ -124,10 +143,10 @@ public:
 // direction: +1 = clockwise UP | -1 = anticlockwise UP
 // ============================================================
 
-ClockDigit hour_ms  (-1, 33, 32, 13, 12);  // H1 — Hour   tens  (0–2)
-ClockDigit hour_ls  ( 1, 14, 27, 26, 25);  // H2 — Hour   units (0–9)
-ClockDigit minute_ms(-1, 23, 22, 21, 19);  // M1 — Minute tens  (0–5)
-ClockDigit minute_ls( 1, 18,  5, 17, 16);  // M2 — Minute units (0–9)
+ClockDigit hour_ms  (-1, 560, 33, 32, 13, 12);
+ClockDigit hour_ls  ( 1, 560, 14, 27, 26, 25);
+ClockDigit minute_ms(-1, 560, 23, 22, 21, 19);
+ClockDigit minute_ls( 1, 560, 18,  5, 17, 16);
 
 
 // ============================================================
@@ -276,7 +295,7 @@ void wifi_connect()
 {
   Serial.println("🔄 Connecting to WiFi...");
   WiFi.mode(WIFI_STA);                     // Station mode (client)
-  //WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);  //Configuration of WIfi 
+  WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);  //Configuration of WIfi 
   WiFi.begin(ssid, password);
 
   unsigned long startAttemptTime = millis();
