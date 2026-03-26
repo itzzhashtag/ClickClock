@@ -1,35 +1,3 @@
-// ============================================================
-//  _   _    _    ____  _   _ _____   _     ____ 
-// | | | |  / \  / ___|| | | |_   _| / \   / ___|
-// | |_| | / _ \ \___ \| |_| | | |  / _ \ | |  _ 
-// |  _  |/ ___ \ ___) |  _  | | | / ___ \| |_| |
-// |_| |_/_/   \_\____/|_| |_| |_|/_/   \_\\____|
-//
-//  Click Clock — Interactive Motor Test
-//  Serial Monitor → type commands → motors move live
-// ============================================================
-
-/*
-how to calibrate and transfer the value:
-
-Step 1 — find the right number in MotorTest_Interactive
-Flash the interactive test, then for each motor:
-Type g 1 — motor should land exactly on digit 1,
-If it overshoots → type s 540 (lower value), h to home, g 1 again,
-If it undershoots → type s 580 (higher value), h to home, g 1 again,
-Repeat until it lands perfectly
-Type i to see the final spd value.
-
-Step 2 — copy that one value into ClickClock
-In your main clock, find this line:
-//cppstatic const int STEPS_PER_DIGIT = 560;  // ← CALIBRATE THIS
-Replace 560 with whatever number you found. 
-Since the main clock uses one shared value for all motors, 
-use the average, or the most important motor 
-(M2 — minute units — changes most often).
-*/
-
-
 
 #include <Stepper.h>
 
@@ -43,104 +11,123 @@ class ClockDigit
   uint8_t max_digit;
   int     STEPS_PER_DIGIT;
 
-  static const int STEPS_PER_REVOLUTION = 2038;
+  int pins[4];
+  int stepIndex = 0;
 
-  Stepper stepper;
+  const int halfStep[8][4] = {
+    {1,0,0,0}, {1,1,0,0},
+    {0,1,0,0}, {0,1,1,0},
+    {0,0,1,0}, {0,0,1,1},
+    {0,0,0,1}, {1,0,0,1}
+  };
 
-public:
-  // dir = +1 or -1 | max = max digit | spd = steps per digit | then IN1..IN4
-  ClockDigit(int8_t dir, uint8_t maxDig, int spd,
-             int blu, int yel, int pnk, int ora)
-    : invert_direction(dir),
-      max_digit(maxDig),
-      STEPS_PER_DIGIT(spd),
-      stepper(STEPS_PER_REVOLUTION, blu, yel, pnk, ora)
+  void _step(int dir)
   {
-    stepper.setSpeed(10);
+    stepIndex = (stepIndex + (dir > 0 ? 1 : 7)) % 8;
+    for (int i = 0; i < 4; i++)
+      digitalWrite(pins[i], halfStep[stepIndex][i]);
+    delayMicroseconds(1200);
   }
 
-  // ---- Move commands ----
+  void _move(int steps)
+  {
+    int dir   = (steps > 0) ? invert_direction : -invert_direction;
+    int count = abs(steps);
+    for (int i = 0; i < count; i++) _step(dir);
+    for (int i = 0; i < 4; i++) digitalWrite(pins[i], LOW);
+  }
+
+public:
+  ClockDigit(int8_t dir, uint8_t maxDig, int spd,
+             int p1, int p2, int p3, int p4)
+    : invert_direction(dir), max_digit(maxDig), STEPS_PER_DIGIT(spd)
+  {
+    pins[0]=p1; pins[1]=p2; pins[2]=p3; pins[3]=p4;
+    for (int i = 0; i < 4; i++) {
+      pinMode(pins[i], OUTPUT);
+      digitalWrite(pins[i], LOW);
+    }
+  }
+
+  void set_to_digit(uint8_t digit)
+  {
+    int delta = digit - current_digit;
+    if (delta != 0) {
+      _move(STEPS_PER_DIGIT * delta);
+      current_digit = digit;
+    }
+  }
+
+  void force_zero()
+  {
+    _move(STEPS_PER_DIGIT * (-current_digit));
+    current_digit = 0;
+  }
 
   void up_one()
   {
-    if (current_digit >= max_digit) {
-      Serial.println("  ⚠️  Already at MAX");
-      return;
-    }
-    stepper.step(invert_direction * STEPS_PER_DIGIT);
+    if (current_digit >= max_digit) { Serial.println("  ⚠️  Already at MAX"); return; }
+    _move(STEPS_PER_DIGIT);
     current_digit++;
     Serial.printf("  ⬆️  UP → digit %d\n", current_digit);
   }
 
   void down_one()
   {
-    if (current_digit <= 0) {
-      Serial.println("  ⚠️  Already at 0");
-      return;
-    }
-    stepper.step(invert_direction * -STEPS_PER_DIGIT);
+    if (current_digit <= 0) { Serial.println("  ⚠️  Already at 0"); return; }
+    _move(-STEPS_PER_DIGIT);
     current_digit--;
     Serial.printf("  ⬇️  DOWN → digit %d\n", current_digit);
   }
 
   void go_to(uint8_t target)
   {
-    if (target > max_digit) {
-      Serial.printf("  ⚠️  Target %d exceeds max %d\n", target, max_digit);
-      return;
-    }
+    if (target > max_digit) { Serial.printf("  ⚠️  Max is %d\n", max_digit); return; }
     int delta = (int)target - (int)current_digit;
-    if (delta == 0) {
-      Serial.printf("  ✅ Already at digit %d\n", current_digit);
-      return;
-    }
-    stepper.step(invert_direction * STEPS_PER_DIGIT * delta);
+    if (delta == 0) { Serial.printf("  ✅ Already at %d\n", current_digit); return; }
+    _move(STEPS_PER_DIGIT * delta);
     current_digit = target;
-    Serial.printf("  🎯 Moved → digit %d\n", current_digit);
+    Serial.printf("  🎯 → digit %d\n", current_digit);
   }
 
   void go_home()
   {
-    Serial.printf("  🏠 Homing from digit %d...\n", current_digit);
-    stepper.step(invert_direction * STEPS_PER_DIGIT * (-current_digit));
+    Serial.printf("  🏠 Homing from %d...\n", current_digit);
+    _move(STEPS_PER_DIGIT * (-current_digit));
     current_digit = 0;
-    Serial.println("  ✅ At home (0)");
+    Serial.println("  ✅ At 0");
   }
 
   void raw_steps(int steps)
   {
     Serial.printf("  🔧 Raw: %d steps\n", steps);
-    stepper.step(steps);
-    Serial.println("  ✅ Done (position NOT tracked for raw moves)");
+    _move(steps);
+    Serial.println("  ✅ Done");
   }
 
   void flip_direction()
   {
     invert_direction *= -1;
-    Serial.printf("  🔄 Direction flipped → now %+d\n", invert_direction);
+    Serial.printf("  🔄 Direction → %+d\n", invert_direction);
   }
 
   void set_steps_per_digit(int spd)
   {
     STEPS_PER_DIGIT = spd;
-    Serial.printf("  ⚙️  Steps/digit updated → %d\n", spd);
+    Serial.printf("  ⚙️  spd → %d\n", spd);
   }
 
   void status()
   {
-    Serial.printf(
-      "  📍 pos=%d  max=%d  spd=%d  dir=%+d\n",
-      current_digit, max_digit, STEPS_PER_DIGIT, invert_direction
-    );
+    Serial.printf("  📍 pos=%d  max=%d  spd=%d  dir=%+d\n",
+      current_digit, max_digit, STEPS_PER_DIGIT, invert_direction);
   }
 
-  // Getters
   uint8_t getPos() { return current_digit; }
   uint8_t getMax() { return max_digit; }
   int     getSpd() { return STEPS_PER_DIGIT; }
   int8_t  getDir() { return invert_direction; }
 };
-
 
 // ============================================================
 // ----- Motor Objects -----
