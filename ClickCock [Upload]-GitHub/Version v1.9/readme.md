@@ -56,26 +56,26 @@ This version introduces a **Flash Memory Recovery System**, allowing the clock t
 
 ## 🧠 Working Principle
 
-Internet (NTP)
-↓
-ESP32 WiFi
-↓
-Internal RTC (keeps time)
-↓
-timeSet() → Extract HH:MM digits
-↓
-motorWork() → Move stepper motors
-↓
-saveTimeToFlash() → Store last position
-↓
-Power Loss Happens ⚡
-↓
-Boot → recoverToZero()
-↓
-Clock moves backward to 00:00
-↓
-Normal startup resumes
-
+Internet (NTP)   
+↓   
+ESP32 WiFi   
+↓   
+Internal RTC (keeps time)   
+↓   
+timeSet() → Extract HH:MM digits   
+↓   
+motorWork() → Move stepper motors   
+↓   
+saveTimeToFlash() → Store last position   
+↓   
+Power Loss Happens ⚡   
+↓   
+Boot → recoverToZero()   
+↓   
+Clock moves backward to 00:00   
+↓   
+Normal startup resumes   
+   
 
 ---
 
