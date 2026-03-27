@@ -8,6 +8,7 @@
 //  Click Clock — ESP32 Stepper Digit Clock
 //  HH:MM — 24hr Format — NTP Synced — IST (UTC+5:30)
 //  H1: 0-2 | H2: 0-9 | M1: 0-5 | M2: 0-9
+// Wokwi - Simulation "https://wokwi.com/projects/459425853991944193"
 // ============================================================
 
 
@@ -142,11 +143,11 @@ public:
 // ClockDigit(direction, IN1, IN2, IN3, IN4)
 // direction: +1 = clockwise UP | -1 = anticlockwise UP
 // ============================================================
-
-ClockDigit hour_ms  (-1, 560, 33, 32, 13, 12);
-ClockDigit hour_ls  ( 1, 560, 14, 27, 26, 25);
-ClockDigit minute_ms(-1, 560, 23, 22, 21, 19);
-ClockDigit minute_ls( 1, 560, 18,  5, 17, 16);
+//                  dir   spd  IN1 IN2 IN3 IN4
+ClockDigit hour_ms  (-1, 1120,  18,  5, 17, 16);  // Hour tens   (0–2)
+ClockDigit hour_ls  (1,  1120,  23, 22, 21, 19);  // Hour units  (0–9)
+ClockDigit minute_ms(-1, 1120,  33, 32, 13, 12); // Min  tens   (0–5)
+ClockDigit minute_ls(1,  1120,  14, 27, 26, 25);  // Min  units  (0–9)
 
 
 // ============================================================
@@ -295,7 +296,7 @@ void wifi_connect()
 {
   Serial.println("🔄 Connecting to WiFi...");
   WiFi.mode(WIFI_STA);                     // Station mode (client)
-  WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);  //Configuration of WIfi 
+  //WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);  //Configuration of WIfi 
   WiFi.begin(ssid, password);
 
   unsigned long startAttemptTime = millis();
@@ -421,8 +422,6 @@ void syncTimeNTP()
       }
 
       Serial.println("❌ NTP not reachable — retrying in 1s...");
-      
-      break;       // stop retrying NTP, RTC has us covered
       ledTask(8);    // Soft Yellow — NTP error
       delay(1000);
     }
@@ -506,3 +505,4 @@ void loop()
 // ============================================================
 // ----- The End -----
 // ============================================================
+
